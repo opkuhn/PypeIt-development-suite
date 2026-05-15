@@ -21,7 +21,7 @@ from pypeit.core import skysub
 
 def test_skysub(redux_out):
 
-    redux_path = Path(redux_out).resolve() / 'shane_kast_blue' / '600_4310_d55' \
+    redux_path = Path(redux_out).absolute() / 'shane_kast_blue' / '600_4310_d55' \
                     / 'shane_kast_blue_A'
 
     # Load the spec2d file
@@ -35,7 +35,7 @@ def test_skysub(redux_out):
     calib_key, _ = CalibFrame.parse_key_dir(spec2DObj.calibs['EDGES'], from_filename=True)
     regfile = SkyRegions.construct_file_name(calib_key, calib_dir=calib_dir,
                                              basename=io.remove_suffix(spec2DObj.head0['FILENAME']))
-    regfile = Path(regfile).resolve()
+    regfile = Path(regfile).absolute()
 
     # If it exists, remove it
     if regfile.exists():
@@ -55,13 +55,12 @@ def test_skysub(redux_out):
     # Try to re-reduce the standard using the "user-defined" sky-regions
 
     # Set the pypeit file
-    pypeit_file = Path(redux_out).resolve() / 'shane_kast_blue' / '600_4310_d55' \
+    pypeit_file = Path(redux_out).absolute() / 'shane_kast_blue' / '600_4310_d55' \
                     / 'shane_kast_blue_A' / 'shane_kast_blue_A.pypeit'
     assert pypeit_file.exists(), 'PypeIt file missing!'
 
     # Initialize the main pypeit run
-    pypeIt = pypeit.PypeIt(str(pypeit_file), verbosity=2, reuse_calibs=True, overwrite=True,
-                           redux_path=str(redux_path))
+    pypeIt = pypeit.PypeIt(str(pypeit_file), reuse_calibs=True, overwrite=True, redux_path=str(redux_path))
     assert pypeIt.fitstbl.n_calib_groups == 1, 'Number of calibration groups changed'
     is_standard = pypeIt.fitstbl.find_frames('standard')
     assert np.sum(is_standard) == 1, 'Number of standard frames changed'
